@@ -1,0 +1,91 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+' =========================
+' Remote marker
+' =========================
+interface Remote
+
+' =========================
+' Interfaces OD (Remote)
+' =========================
+interface ServeurPrincipalODInt {
+  +declarerPosteSupervision(poste : PosteSupervisionODInt, obs : ObserverPosteODInt, cams : Liste<Camera>)
+}
+ServeurPrincipalODInt --|> Remote
+
+interface PosteSupervisionODInt {
+  +recevoirImage(c : Camera, m : Mat)
+}
+PosteSupervisionODInt --|> Remote
+
+interface ObserverPosteODInt {
+  +update(o : Object)
+}
+ObserverPosteODInt --|> Remote
+
+' =========================
+' Base
+' =========================
+class URO
+class Mat
+
+class Camera
+class ZoneGraphique {
+  +afficherImage(m : Mat)
+}
+
+' Camera contient ZoneGraphique (composition)
+Camera *-- ZoneGraphique
+
+' =========================
+' Affichage alertes
+' =========================
+class ZoneAlertes
+class Alerte
+
+class AfficherLesAlertes {
+  +filtrerAlerte(a : Alerte)
+  +afficher(a : Alerte)
+}
+
+ZoneAlertes o-- AfficherLesAlertes
+AfficherLesAlertes o-- ObserverPosteOD
+
+' =========================
+' Observer poste
+' =========================
+class ObserverPosteOD {
+  +update(o : Object)
+}
+
+' Réalisation vers interface OD
+ObserverPosteOD ..|> ObserverPosteODInt
+
+' =========================
+' PosteSupervisionOD (singleton)
+' =========================
+class PosteSupervisionOD <<singleton>> {
+  -fichierConfCameraPoste : File
+  +recevoirImage(c : Camera, m : Mat)
+  +afficherImageDansZone(z : ZoneGraphique, m : Mat)
+}
+
+PosteSupervisionOD --|> URO
+PosteSupervisionOD ..|> PosteSupervisionODInt
+
+' PosteSupervisionOD compose N Camera
+PosteSupervisionOD *-- "N" Camera
+
+' PosteSupervisionOD compose AfficherLesAlertes et ObserverPosteOD
+PosteSupervisionOD *-- AfficherLesAlertes
+PosteSupervisionOD *-- ObserverPosteOD
+
+' Lien d'utilisation : affichage image dans zone
+PosteSupervisionOD --> ZoneGraphique : afficherImageDansZone(..)
+
+' Déclaration auprès du serveur principal
+ServeurPrincipalODInt --> PosteSupervisionOD : declarerPosteSupervision(..)
+
+@enduml

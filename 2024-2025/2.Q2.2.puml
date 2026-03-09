@@ -1,0 +1,46 @@
+@startuml
+
+' =========================
+' Remote
+' =========================
+interface Remote
+
+interface ModeleODInt {
+  +getVal() : int
+  +setVal(int v) : void
+}
+
+' Comme sur le schéma : généralisation vers Remote
+ModeleODInt --|> Remote
+
+
+' =========================
+' URO + ModeleOD
+' =========================
+class URO
+
+class ModeleOD {
+  +getVal() : int
+  +setVal(int v) : void
+}
+
+ModeleOD --|> URO
+ModeleOD ..|> ModeleODInt
+
+
+' =========================
+' Modele (local)
+' =========================
+class Modele {
+  -intVal : int
+  +getVal() : int
+  +setVal(int v) : void
+}
+
+' Le schéma montre aussi une réalisation de Modele vers ModeleODInt
+Modele ..|> ModeleODInt
+
+' Agrégation : ModeleOD a un "modele" (losange blanc côté ModeleOD)
+ModeleOD o-- Modele : modele
+
+@enduml

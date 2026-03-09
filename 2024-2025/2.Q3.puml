@@ -1,0 +1,40 @@
+@startuml
+
+class Utilisateur {
+  -a : A
+  +traitement() : void
+}
+
+class F {
+  {static} +getA() : A
+}
+
+class A {
+  -b : InterfaceB
+  -choix : int
+  +A()
+  +operationA() : void
+  +setB(ib : InterfaceB) : void
+}
+
+interface InterfaceB {
+  +operationB() : void
+}
+
+class B {
+  +operationB() : void
+}
+
+' Réalisation
+B ..|> InterfaceB
+
+' Agrégations (losange blanc)
+Utilisateur o-- A
+A o-- InterfaceB
+
+' Compositions (losange noir)
+F *-- A
+F *-- B
+F *-- F
+
+@enduml

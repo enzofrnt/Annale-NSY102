@@ -1,0 +1,60 @@
+@startuml
+
+interface Observer {
+  +update(Object o)
+}
+
+interface Observable {
+  +addObserver(Observer o)
+  +notifyObservers(Object arg)
+}
+
+class ObservableHorloge
+
+ObservableHorloge ..|> Observable
+
+class ObserverHorloge {
+  +update(Observable o, Object arg)
+}
+
+ObserverHorloge ..|> Observer
+
+Observable o-- Observer
+
+
+package "Remote Implementation" <<Rectangle>> {
+
+    interface Remote
+
+    interface ObserverODInt {
+      +update(Object o)
+    }
+
+    class URO
+
+    class AdaptObserverHorloge {
+      +update(Object o)
+    }
+
+    class ProxyObserverHorloge
+
+    ' Héritage : AdaptObserverHorloge est un URO
+    AdaptObserverHorloge --|> URO
+
+    ' ObserverODInt est Remote
+    ObserverODInt ..|> Remote
+
+    ' AdaptObserverHorloge implémente ObserverODInt
+    AdaptObserverHorloge ..|> ObserverODInt
+
+    ' Agrégation (comme sur ton diagramme)
+    ObserverODInt --o ProxyObserverHorloge
+
+    ' ObserverHorloge possède un AdaptObserverHorloge
+    ObserverHorloge o-- AdaptObserverHorloge
+
+    ' ObservableHorloge contient n ProxyObserverHorloge
+    ObservableHorloge *-- "n" ProxyObserverHorloge
+}
+
+@enduml

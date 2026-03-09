@@ -1,0 +1,157 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+' =========================
+' Base Observer / Observable
+' =========================
+interface Observer {
+  +update(Object o)
+}
+
+interface Observable
+
+Observable "N" o-- Observer
+
+class ObservablePoste
+ObservablePoste --|> Observable
+
+class ObserverPoste
+ObserverPoste o-- ObservablePoste
+
+' =========================
+' Remote marker
+' =========================
+interface Remote
+
+interface ObserverPosteODInt {
+  +update(Object o)
+}
+ObserverPosteODInt --|> Remote
+
+' (proxy/bridge côté poste)
+ObserverPoste o-- ObserverPosteODInt
+
+' =========================
+' URO + Serveur principal (OD)
+' =========================
+class URO
+
+interface ServeurPrincipalODInt {
+  +declarerPostesSupervision(PosteSupervisionODInt posteSupervisionODInt, ObserverPosteODInt observerPosteODInt, Liste<Camera> cams)
+  +declarerPostePrincipal(ObserverPosteODInt observerPosteODInt)
+  +recevoirAlerte(Alerte a)
+}
+ServeurPrincipalODInt --|> Remote
+
+class ServeurPrincipalOD <<singleton>> {
+  -fichierConfCameraIP : File
+}
+
+ServeurPrincipalOD --|> URO
+ServeurPrincipalOD ..|> ServeurPrincipalODInt
+
+' ServeurPrincipalOD gère N observables postes
+ServeurPrincipalOD *-- "N" ObservablePoste
+
+' =========================
+' Caméras / postes
+' =========================
+class Camera
+class PosteSupervision
+
+interface PosteSupervisionODInt {
+  +recevoirImage(Camera c)
+}
+PosteSupervisionODInt --|> Remote
+
+PosteSupervision o-- PosteSupervisionODInt
+
+' PosteSupervision contient/associe des caméras
+PosteSupervision *-- "N" Camera
+
+' ServeurPrincipalOD référence des caméras / postes (comme sur le schéma)
+ServeurPrincipalOD *-- "N" Camera
+ServeurPrincipalOD *-- "N" PosteSupervision
+
+' =========================
+' Réception flux vidéo (singleton)
+' =========================
+class ReceptionFluxVideo <<singleton>> {
+  +traiterCameras()
+  +capturerImage(Camera c)
+}
+
+ServeurPrincipalOD --> ReceptionFluxVideo
+ReceptionFluxVideo --> Camera : image d'une caméra
+
+' =========================
+' Création enregistrements (singleton)
+' =========================
+class CreationEnregistrements <<singleton>> {
+  +creerFichier(Camera c) : File
+  +ajouterImage(File fichier, Mat m)
+}
+
+ReceptionFluxVideo --> CreationEnregistrements : image d'une caméra,\n+ id caméra
+
+' =========================
+' Chaîne de traitement (singleton)
+' =========================
+interface ServeurTraitementsIAODInt {
+  +demanderExecution(TraitementIA t)
+  +getListeTraitements()
+}
+ServeurTraitementsIAODInt --|> Remote
+
+class GestionChaineTraitement <<singleton>> {
+  -fichierConfTraitementsIA : File
+  +injecterTraitement(TraitementInt t)
+}
+
+ReceptionFluxVideo --> GestionChaineTraitement : N images d'une caméra
+
+GestionChaineTraitement o-- ServeurTraitementsIAODInt
+GestionChaineTraitement *-- "N" TraitementInt : traitements
+
+class ChaineTraitement {
+  +add(TraitementInt t)
+}
+GestionChaineTraitement *-- ChaineTraitement : chaîne
+ChaineTraitement *-- "N" TraitementInt
+
+interface TraitementInt {
+  +getNom()
+}
+
+class Traitement {
+  -nom : String
+}
+Traitement ..|> TraitementInt
+
+' =========================
+' Alertes (factory + impl)
+' =========================
+interface Alerte {
+  +Operation1()
+  +Operation2()
+}
+
+class AlerteImp {
+  -libellé : String
+  -camera : Camera
+}
+AlerteImp ..|> Alerte
+
+class FactoryAlertes <<singleton>> {
+  +creerAlerte(...)
+}
+
+FactoryAlertes *-- "N" Alerte
+FactoryAlertes --> AlerteImp
+
+' Lien alertes vers serveur principal
+ServeurPrincipalOD --> FactoryAlertes
+GestionChaineTraitement --> ServeurPrincipalODInt : recevoirAlerte(Alerte)
+
+@enduml

@@ -1,0 +1,93 @@
+@startuml
+left to right direction
+skinparam componentStyle rectangle
+
+' =========================
+' Acteurs / externes
+' =========================
+component "CAMERAS IP" as CAM <<external>>
+
+artifact "Fichier de configuration\ndes caméra IP" as CFG_CAM_IP
+artifact "Fichier de configuration\ndes caméras à visualiser\npour chacun des postes\nde supervision" as CFG_CAM_VIEW
+artifact "Fichier de configuration\ndes traitements IA" as CFG_IA
+
+database "Fichiers image par 24h" as DB_IMG
+
+' =========================
+' COMPOSANT 2 : Poste supervision (Occurrence = N)
+' =========================
+package "POSTE SUPERVISION\n(COMPOSANT 2) Occurence=N" as POSTE {
+  component "Gestion des\nzones graphiques\ndes caméras" as ZONES
+  component "Affichages des alertes" as UI_ALERTES
+  component "Observer" as OBS
+}
+
+OBS --> UI_ALERTES : alerte
+
+' =========================
+' COMPOSANT 1 : Serveur principal
+' =========================
+package "SERVEUR PRINCIPAL\n(COMPOSANT 1)" as SP {
+  component "Réception des flux vidéo" as RX
+  component "Observable" as OBSV
+  component "Gestion de la chaîne\nde traitement" as CHAIN
+  component "Création des\nenregistrements" as REC
+  component "Factory Alertes" as FACT
+
+  RX --> CHAIN : N images d'une caméra
+  CHAIN --> REC : envoi des\nimages d'une caméra
+}
+
+' =========================
+' COMPOSANT 3 : Serveur traitements IA
+' =========================
+package "SERVEUR TRAITEMENTS IA\n(COMPOSANT 3)" as IA {
+  component "Traitement1" as T1
+  component "Traitement2" as T2
+  component "Traitement3" as T3
+}
+
+' =========================
+' COMPOSANT 4 : IHM poste principal
+' =========================
+package "IHM POSTE PRINCIPAL\n(COMPOSANT 4)" as IHM {
+  component "IHM" as UI
+}
+
+' =========================
+' Flux / relations
+' =========================
+
+' Déclaration postes
+POSTE --> SP : se déclarer + la liste\nde ses caméras
+IHM --> SP : se déclarer
+
+' Images d'une caméra
+SP --> POSTE : images d'une caméra
+
+' Alertes (Observer/Observable)
+OBSV --> OBS : notification\nd'une alerte
+
+' Capture d'image caméra (URL)
+SP --> CAM : capture d'une image\nd'une caméra (URL)
+
+' Config caméras IP (lecture)
+SP ..> CFG_CAM_IP : lecture
+
+' Config caméras à visualiser (lecture/écriture)
+POSTE ..> CFG_CAM_VIEW : lecture
+IHM ..> CFG_CAM_VIEW : écriture
+
+' Traitements IA : exécution + config
+CHAIN --> IA : demander exécution\nd'un traitement avec N images
+SP ..> CFG_IA : lecture pour injecter les\ntraitements à réaliser
+IHM ..> CFG_IA : écriture
+IA --> SP : envoi d'une alerte
+IA --> CFG_IA : get liste traitements
+
+' Enregistrements images (écriture) + lectures
+REC ..> DB_IMG : écriture
+IHM ..> DB_IMG : lecture
+POSTE ..> DB_IMG : lecture
+
+@enduml

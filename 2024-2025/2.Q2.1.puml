@@ -1,0 +1,53 @@
+@startuml
+
+' =========================
+' Remote
+' =========================
+interface Remote
+
+interface ModeleODInt {
+  +getVal() : int
+  +setVal(int v) : void
+}
+
+ModeleODInt --|> Remote
+
+class URO
+
+class ModeleOD {
+  +getVal() : int
+  +setVal(int v) : void
+}
+
+ModeleOD --|> URO
+ModeleOD ..|> ModeleODInt
+
+
+' =========================
+' Local side
+' =========================
+interface ModeleInt {
+  +getVal() : int
+  +setVal(int v) : void
+}
+
+class AdaptModele {
+  +getVal() : int
+  +setVal(int v) : void
+}
+
+AdaptModele ..|> ModeleInt
+
+class Modele {
+  -intVal : int
+  +getVal() : int
+  +setVal(int v) : void
+}
+
+' =========================
+' Aggregations (diamonds)
+' =========================
+ModeleOD o-- ModeleInt : modele
+AdaptModele o-- Modele
+
+@enduml
