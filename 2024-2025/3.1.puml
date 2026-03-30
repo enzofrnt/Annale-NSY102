@@ -1,6 +1,7 @@
 @startuml
-left to right direction
-skinparam componentStyle rectangle
+' left to right direction
+' skinparam componentStyle rectangle
+' skinparam linetype ortho
 
 ' =========================
 ' Acteurs / externes
@@ -35,7 +36,6 @@ package "SERVEUR PRINCIPAL\n(COMPOSANT 1)" as SP {
   component "Factory Alertes" as FACT
 
   RX --> CHAIN : N images d'une caméra
-  CHAIN --> REC : envoi des\nimages d'une caméra
 }
 
 ' =========================
@@ -50,9 +50,7 @@ package "SERVEUR TRAITEMENTS IA\n(COMPOSANT 3)" as IA {
 ' =========================
 ' COMPOSANT 4 : IHM poste principal
 ' =========================
-package "IHM POSTE PRINCIPAL\n(COMPOSANT 4)" as IHM {
-  component "IHM" as UI
-}
+package "IHM POSTE PRINCIPAL\n(COMPOSANT 4)" as IHM
 
 ' =========================
 ' Flux / relations
@@ -62,14 +60,15 @@ package "IHM POSTE PRINCIPAL\n(COMPOSANT 4)" as IHM {
 POSTE --> SP : se déclarer + la liste\nde ses caméras
 IHM --> SP : se déclarer
 
-' Images d'une caméra
-SP --> POSTE : images d'une caméra
-
 ' Alertes (Observer/Observable)
 OBSV --> OBS : notification\nd'une alerte
+OBSV --> IHM : notification\nd'une alerte
 
 ' Capture d'image caméra (URL)
-SP --> CAM : capture d'une image\nd'une caméra (URL)
+RX --> CAM : capture d'une image\nd'une caméra (URL)
+RX --> POSTE : images d'une caméra
+RX --> REC : envoie des images d'une caméra
+
 
 ' Config caméras IP (lecture)
 SP ..> CFG_CAM_IP : lecture
@@ -80,10 +79,11 @@ IHM ..> CFG_CAM_VIEW : écriture
 
 ' Traitements IA : exécution + config
 CHAIN --> IA : demander exécution\nd'un traitement avec N images
-SP ..> CFG_IA : lecture pour injecter les\ntraitements à réaliser
+CHAIN ..> CFG_IA : lecture pour injecter les\ntraitements à réaliser
+
 IHM ..> CFG_IA : écriture
-IA --> SP : envoi d'une alerte
-IA --> CFG_IA : get liste traitements
+T1 --> SP : envoi d'une alerte
+IHM --> IA : get liste traitements
 
 ' Enregistrements images (écriture) + lectures
 REC ..> DB_IMG : écriture
