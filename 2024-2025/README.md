@@ -1,3 +1,1 @@
-# A vérifier
-
-- 3.2
+# Normalement tout est ok ici vous pouvez relire si vous voulez.

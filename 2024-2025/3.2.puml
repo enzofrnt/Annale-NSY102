@@ -17,7 +17,6 @@ class ObservablePoste
 ObservablePoste --|> Observable
 
 class ObserverPoste
-ObserverPoste o-- ObservablePoste
 
 ' =========================
 ' Remote marker
@@ -47,12 +46,15 @@ ServeurPrincipalODInt --|> Remote
 class ServeurPrincipalOD <<singleton>> {
   -fichierConfCameraIP : File
 }
+ServeurPrincipalOD *-- "singleton" ServeurPrincipalOD
 
 ServeurPrincipalOD --|> URO
 ServeurPrincipalOD ..|> ServeurPrincipalODInt
 
 ' ServeurPrincipalOD gère N observables postes
-ServeurPrincipalOD *-- "N" ObservablePoste
+ServeurPrincipalOD *-- ObservablePoste
+ServeurPrincipalOD "N" *-- ObserverPoste
+ObserverPoste ..|> Observer
 
 ' =========================
 ' Caméras / postes
@@ -68,11 +70,10 @@ PosteSupervisionODInt --|> Remote
 PosteSupervision o-- PosteSupervisionODInt
 
 ' PosteSupervision contient/associe des caméras
-PosteSupervision *-- "N" Camera
+Camera "N" *--  PosteSupervision 
 
 ' ServeurPrincipalOD référence des caméras / postes (comme sur le schéma)
-ServeurPrincipalOD *-- "N" Camera
-ServeurPrincipalOD *-- "N" PosteSupervision
+ServeurPrincipalOD "N" *-- Camera
 
 ' =========================
 ' Réception flux vidéo (singleton)
@@ -82,8 +83,8 @@ class ReceptionFluxVideo <<singleton>> {
   +capturerImage(Camera c)
 }
 
-ServeurPrincipalOD --> ReceptionFluxVideo
-ReceptionFluxVideo --> Camera : image d'une caméra
+ReceptionFluxVideo --> ServeurPrincipalOD : image d'une caméra
+ReceptionFluxVideo *-- "singleton" ReceptionFluxVideo
 
 ' =========================
 ' Création enregistrements (singleton)
@@ -94,6 +95,7 @@ class CreationEnregistrements <<singleton>> {
 }
 
 ReceptionFluxVideo --> CreationEnregistrements : image d'une caméra,\n+ id caméra
+CreationEnregistrements *-- "singleton" CreationEnregistrements
 
 ' =========================
 ' Chaîne de traitement (singleton)
@@ -110,15 +112,15 @@ class GestionChaineTraitement <<singleton>> {
 }
 
 ReceptionFluxVideo --> GestionChaineTraitement : N images d'une caméra
+GestionChaineTraitement *-- "singleton" GestionChaineTraitement
 
 GestionChaineTraitement o-- ServeurTraitementsIAODInt
-GestionChaineTraitement *-- "N" TraitementInt : traitements
 
 class ChaineTraitement {
   +add(TraitementInt t)
 }
 GestionChaineTraitement *-- ChaineTraitement : chaîne
-ChaineTraitement *-- "N" TraitementInt
+ChaineTraitement "N" o--  TraitementInt
 
 interface TraitementInt {
   +getNom()
@@ -127,7 +129,8 @@ interface TraitementInt {
 class Traitement {
   -nom : String
 }
-Traitement ..|> TraitementInt
+ Traitement  ..|> TraitementInt
+ Traitement --* "N"  GestionChaineTraitement : traitements
 
 ' =========================
 ' Alertes (factory + impl)
@@ -147,11 +150,7 @@ class FactoryAlertes <<singleton>> {
   +creerAlerte(...)
 }
 
-FactoryAlertes *-- "N" Alerte
-FactoryAlertes --> AlerteImp
-
-' Lien alertes vers serveur principal
-ServeurPrincipalOD --> FactoryAlertes
-GestionChaineTraitement --> ServeurPrincipalODInt : recevoirAlerte(Alerte)
+FactoryAlertes *-- "singleton" FactoryAlertes
+FactoryAlertes "N" *-- Alerte
 
 @enduml
