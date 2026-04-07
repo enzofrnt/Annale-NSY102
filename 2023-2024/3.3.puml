@@ -1,0 +1,134 @@
+@startuml
+left to right direction
+skinparam classAttributeIconSize 0
+
+/'
+COMMENTAIRE CORRECTION - COMPOSANT 2 (2/ - 12 points : commentaire 4pts + diagramme 8pts)
+
+La classe IHMPoste contient toutes les méthodes correspondant aux actions de l'opérateur.
+
+Elle utilise l'interface distante du factory principal (FactoryOrdres) pour s'abonner en lui
+donnant le stub de ObserverOD pour recevoir les notifications, et pour demander les ordres en
+fonction d'un critère.
+
+Elle gère une liste des critères créés par l'opérateur en créant et combinant les critères de
+base prédéfinis. La méthode appliquer de Critere est utilisée par le serveur principal pour
+déterminer les ordres à retourner.
+
+Elle gère la liste des ordres reçus par le serveur principal. Ces ordres sont les stubs
+(OrdreODInt) des ordres qui restent sur le serveur principal.
+
+Elle crée un observer distant (ObserverOD) afin de recevoir les ordres créés et mis à jour
+par le serveur principal.
+'/
+
+' =========================
+' COMPOSANT 2 - Poste Opérateur
+' =========================
+
+' =========================
+' Remote / URO
+' =========================
+interface Remote
+class URO
+
+' =========================
+' Hiérarchie des Critères (Composite Pattern)
+' =========================
+abstract class AbstractCriteres {
+  +appliquer() : boolean
+}
+
+class ET_Critere
+class OU_Critere
+class Neutre
+
+ET_Critere --|> AbstractCriteres
+OU_Critere --|> AbstractCriteres
+Neutre --|> AbstractCriteres
+
+' ET_Critere et OU_Critere agrègent 2 AbstractCriteres (composite)
+ET_Critere "2" o-- AbstractCriteres
+OU_Critere "2" o-- AbstractCriteres
+
+' AbstractCriteres filtre sur un OrdreODInt (méthode appliquer())
+AbstractCriteres o-- OrdreODInt : ordre
+
+class IntervalleDate
+class MontantSup
+class Client
+
+IntervalleDate --|> AbstractCriteres
+MontantSup --|> AbstractCriteres
+Client --|> AbstractCriteres
+
+' =========================
+' IHMPoste : classe principale du composant 2
+' =========================
+class IHMPoste {
+  +getOrdres(Criteres c) : List<OrdreODInt>
+  +accepterOrdre(OrdreODInt o, String com)
+  +refuserOrdre(OrdreODInt o, String com)
+  +abandonnerOrdre(OrdreODInt o, String com)
+  +creerCritere(...)
+}
+
+' IHMPoste agrège des critères
+IHMPoste o-- AbstractCriteres : criteres
+
+' IHMPoste compose une ListeOrdres
+IHMPoste *-- ListeOrdres : listeOrdre
+
+' IHMPoste utilise l'interface distante du factory principal
+IHMPoste o-- FactoryOrdres : factoryOrdres
+
+' IHMPoste crée un observer distant
+IHMPoste o-- ObserverOD : observer
+
+' =========================
+' Interface distante du Factory (côté client)
+' =========================
+interface FactoryOrdres {
+  +sabonner(ObserverPosteODInt o)
+  +getOrdres(AbstractCritere c) : List<OrdreODInt>
+}
+FactoryOrdres --|> Remote
+
+' =========================
+' Liste des ordres
+' =========================
+class ListeOrdres {
+  +creerMajOrdre(OrdreODInt o)
+}
+ListeOrdres "*" *-- OrdreODInt : ordres
+
+' =========================
+' ObserverOD : observer distant (reçoit les notifications)
+' =========================
+class ObserverOD
+ObserverOD --|> URO
+ObserverOD ..|> ObserverPosteODInt
+
+ObserverOD o-- ListeOrdres : listeOrdre
+
+' =========================
+' Interface distante de l'observer (côté serveur)
+' =========================
+interface ObserverPosteODInt {
+  +update(Object o)
+}
+ObserverPosteODInt --|> Remote
+
+' =========================
+' Interface distante des Ordres (stubs reçus du serveur)
+' =========================
+interface OrdreODInt {
+  +majOrdre(OrdreInt o)
+  +verouillerOrdre() : boolean
+  +deverouillerOrdre()
+  +getteurs()
+  +setteurs()
+}
+OrdreODInt --|> Remote
+
+@enduml
