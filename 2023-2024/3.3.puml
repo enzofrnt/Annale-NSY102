@@ -54,7 +54,7 @@ class IHMPoste {
 }
 
 ' IHMPoste agrège des critères
-IHMPoste o-- AbstractCriteres : criteres
+IHMPoste "*" *-- AbstractCriteres : criteres
 
 ' IHMPoste compose une ListeOrdres
 IHMPoste *-- ListeOrdres : listeOrdre
@@ -63,7 +63,7 @@ IHMPoste *-- ListeOrdres : listeOrdre
 IHMPoste o-- FactoryOrdres : factoryOrdres
 
 ' IHMPoste crée un observer distant
-IHMPoste o-- ObserverOD : observer
+IHMPoste *-- ObserverOD : observer
 
 ' =========================
 ' Interface distante du Factory (côté client)
