@@ -21,23 +21,24 @@ OBS --> LISTE : maj
 ' COMPOSANT 1 : Serveur principal
 ' =========================
 package "SERVEUR PRINCIPAL\n(COMPOSANT 1)" as SP {
-  component "Factory des Ordres" as FACTORY
-  component "Ordre" as ORDRE
-  component "Observable\n(distant)" as OBSV
+  package "Factory des Ordres" as FACTORY {
+    component "Ordre" as ORDRE
+    component "Observable\n(distant)" as OBSV
+  }
 }
 
-FACTORY --> ORDRE : création
 ORDRE --> OBSV : notifier
 
 ' =========================
 ' COMPOSANT 1 bis : Serveur secondaire
 ' =========================
 package "SERVEUR SECONDAIRE\n(COMPOSANT 1 bis)" as SS {
-  component "Factory des Ordres" as FACTORY2
-  component "Ordre" as ORDRE2
+  package "Factory des Ordres" as FACTORY2 {
+    component "Ordre" as ORDRE2
+  }
 }
 
-FACTORY2 --> ORDRE2 : création
+FACTORY --> FACTORY2 : création ordres
 
 ' =========================
 ' COMPOSANT 4 : Agence bancaire
@@ -49,13 +50,16 @@ package "AGENCE BANCAIRE\n(COMPOSANT 4)" as AB
 ' =========================
 
 ' Arrivée des ordres extérieurs
-EXT --> SP : créations ordres
+EXT --> FACTORY : créations ordres
 
 ' Opérateur → Poste
 OP --> POSTE : Accepter / Refuser /\nAbandonner un ordre
 
+
+OP --> CRIT : créer des critères
+
 ' Poste → Serveur principal
-POSTE --> SP : s'abonner
+POSTE --> FACTORY : s'abonner
 POSTE --> FACTORY : obtenir les ordres\nen f° des critères
 POSTE --> ORDRE : maj ordre\nverrouiller un ordre\ndéverrouiller un ordre
 
