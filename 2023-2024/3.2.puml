@@ -28,14 +28,11 @@ class FactoryOrdresImp {
 FactoryOrdresImp --|> URO
 FactoryOrdresImp ..|> FactoryOrdres
 
-' FactoryOrdresImp gère les OrdreOD (adaptateurs distants) en mémoire
-FactoryOrdresImp "*" *-- OrdreOD : ordres
-
 ' FactoryOrdresImp connaît l'observable
 FactoryOrdresImp *-- ObservablePoste : observable
 
 ' FactoryOrdresImp crée les ObserverPoste lors de chaque sabonner()
-FactoryOrdresImp --> ObserverPoste : création
+FactoryOrdresImp "*" --> ObserverPoste : création
 
 ' FactoryOrdresImp connaît le factory du serveur secondaire
 FactoryOrdresImp o-- FactoryOrdres : factorySecondaire
@@ -48,14 +45,13 @@ interface Observable
 interface Observer {
   +update(Object o)
 }
-Observable "N" o-- Observer
+Observable "*" o-- Observer
 
 class ObservablePoste
 ObservablePoste --|> Observable
 
 class ObserverPoste
 ObserverPoste ..|> Observer
-ObservablePoste "N" *-- ObserverPoste
 
 ' ObserverPoste utilise l'interface distante du poste pour notifier
 ObserverPoste o-- ObserverPosteODInt : observerDistant
@@ -99,12 +95,13 @@ OrdreOD ..|> OrdreODInt
 OrdreOD o-- OrdreInt : ordre
 
 ' OrdreOD connaît l'ordre équivalent sur le serveur secondaire
-OrdreOD o-- OrdreODInt : ordreDistantServeurSecondaire
+' OrdreOD o-- OrdreODInt : ordreDistantServeurSecondaire
 
 ' =========================
 ' Ordre (abstract) et ses sous-types
 ' =========================
 abstract class Ordre
+Ordre o-- OrdreODInt : ordreDistantServeurSecondaire
 Ordre ..|> OrdreInt
 Ordre o-- ObservablePoste : observable
 
@@ -115,5 +112,7 @@ class Regroupement
 Vente --|> Ordre
 Achat --|> Ordre
 Regroupement --|> Ordre
+
+OrdreInt --* "*" FactoryOrdresImp : ordres
 
 @enduml
