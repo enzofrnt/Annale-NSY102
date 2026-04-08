@@ -2,27 +2,6 @@
 left to right direction
 skinparam classAttributeIconSize 0
 
-/'
-COMMENTAIRE CORRECTION - COMPOSANT 1 (2/ - 23 points : commentaire 8pts + diagramme 15pts)
-
-Le factory des ordres est un factory distant par héritage.
-
-Il utilise un Observable pour notifier chacun des postes IHM qui envoie, lors de son
-abonnement, le stub de son interface distante. A chaque abonnement un ObserverPoste est créé
-qui s'abonne à l'observable et utilise l'interface distante ObserverPosteODInt pour notifier
-les ordres.
-
-Pour mettre à jour le serveur secondaire, le factory utilise naturellement l'interface distante
-du factory secondaire pour la création des ordres (attribut factorySecondaire), et chaque Ordre
-utilise l'interface distante de l'ordre équivalente situé sur le serveur secondaire (attribut
-ordreDistantServeurSecondaire) pour la mise à jour d'un ordre.
-La méthode creerOrdre du factory principal retourne le stub de l'ordre créé sur le serveur
-secondaire.
-
-Ordre est une classe abstraite dont hérite tous les types d'ordre.
-Ordre est transformé en objet distant par l'adaptateur OrdreOD.
-'/
-
 ' =========================
 ' COMPOSANT 1 - Serveur Principal
 ' =========================

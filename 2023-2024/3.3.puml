@@ -2,26 +2,6 @@
 left to right direction
 skinparam classAttributeIconSize 0
 
-/'
-COMMENTAIRE CORRECTION - COMPOSANT 2 (2/ - 12 points : commentaire 4pts + diagramme 8pts)
-
-La classe IHMPoste contient toutes les méthodes correspondant aux actions de l'opérateur.
-
-Elle utilise l'interface distante du factory principal (FactoryOrdres) pour s'abonner en lui
-donnant le stub de ObserverOD pour recevoir les notifications, et pour demander les ordres en
-fonction d'un critère.
-
-Elle gère une liste des critères créés par l'opérateur en créant et combinant les critères de
-base prédéfinis. La méthode appliquer de Critere est utilisée par le serveur principal pour
-déterminer les ordres à retourner.
-
-Elle gère la liste des ordres reçus par le serveur principal. Ces ordres sont les stubs
-(OrdreODInt) des ordres qui restent sur le serveur principal.
-
-Elle crée un observer distant (ObserverOD) afin de recevoir les ordres créés et mis à jour
-par le serveur principal.
-'/
-
 ' =========================
 ' COMPOSANT 2 - Poste Opérateur
 ' =========================

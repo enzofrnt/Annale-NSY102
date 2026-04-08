@@ -1,39 +1,5 @@
 @startuml
 
-/'
-COMMENTAIRE CORRECTION (1/ - 15 points)
-
-Tous les postes opérateurs s'abonnent au serveur principal afin de recevoir par notification
-les ordres créés ou modifiés sur le serveur principal afin de mettre à jour la liste des ordres
-affichés sur le poste.
-
-Le serveur principal (et secondaire) contient un factory qui gère tous les ordres en mémoire.
-
-Dès qu'un ordre est créé ou modifié sur le serveur principal, l'ordre est créé ou modifié sur
-le serveur secondaire qui est une duplication du serveur principal.
-
-L'opérateur demande explicitement au factory des ordres du serveur principal, les ordres en
-fonction de ses critères qui sont créés sur chacun des postes opérateurs. En retour, le serveur
-renvoie les stubs de chacun des ordres car les ordres sont des objets distants. On a fait le
-choix que les ordres sont des objets distants qui restent sur le serveur.
-
-Ainsi, suite à l'acceptation, le refus ou l'abandon d'un ordre, la maj de l'ordre est faite
-directement sur l'objet distant de l'ordre.
-
-Le serveur secondaire se déclare auprès du serveur principal. Ainsi, seul le serveur principal
-sera enregistré dans un annuaire.
-
-De même, le verrouillage ou le déverrouillage d'un ordre se fait directement sur l'objet
-distant de l'ordre.
-
-L'opérateur peut demander des informations aux différentes agences bancaires qui contient les
-informations de chacun des clients de l'agence. La référence du client contient l'identification
-de son agence.
-
-Pour la duplication, une autre solution serait que le serveur secondaire soit notifié des ordres
-créés et modifiés, comme pour une IHM. Cette solution a été le choix de nombreux auditeurs.
-'/
-
 ' =========================
 ' Acteurs / externes
 ' =========================
